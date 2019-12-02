@@ -1,6 +1,6 @@
 {
 	"name": "@maca134/rxjs-remote",
-	"version": "1.0.7",
+	"version": "1.0.8",
 	"description": "Observerables over the network",
 	"main": "./dist",
 	"scripts": {
@@ -11,17 +11,21 @@
 		"build": "rimraf ./dist && npm run generate-barrels && tsc",
 		"generate-barrels": "barrelsby --delete -d ./src"
 	},
-	"author": "maca134",
+	"author": "maca134@googlemail.com",
 	"license": "MIT",
 	"repository": {
 		"url": "https://github.com/maca134/rxjs-remote.git"
 	},
 	"homepage": "https://github.com/maca134/rxjs-remote",
 	"dependencies": {
-		"@maca134/rxjs-remote-client": "^1.0.7",
+		"@maca134/rxjs-remote-client": "^1.0.10",
 		"reflect-metadata": "^0.1.13",
 		"rxjs": "^6.5.3"
 	},
+	"keywords": [
+		"rxjs",
+		"observable"
+	],
 	"devDependencies": {
 		"@types/node": "^12.12.14",
 		"barrelsby": "^2.2.0",

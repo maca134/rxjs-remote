@@ -15,7 +15,7 @@ import 'reflect-metadata';
 import { timer } from 'rxjs';
 import * as ioServer from 'socket.io';
 import { finalize } from 'rxjs/operators';
-import { RxjsRemote, roc } from '../../rxjs-remote/src';
+import { RxjsRemote, roc } from '@maca134/rxjs-remote';
 
 class SomeClass {
 	@roc()
@@ -73,7 +73,7 @@ io.of('roc').on('connection', socket => {
 // client.ts
 import 'socket.io-client';
 import { timer } from 'rxjs';
-import { RxjsRemoteClient } from '../../rxjs-remote-client/src';
+import { RxjsRemoteClient } from '@maca134/rxjs-remote-client';
 import { retryWhen, take, delayWhen, tap } from 'rxjs/operators';
 
 // socket io
