@@ -12,7 +12,7 @@
 	"author": "maca134",
 	"license": "UNLICENSED",
 	"dependencies": {
-		"@maca134/rxjs-remote-client": "^1.0.6",
+		"@maca134/rxjs-remote-client": "^1.0.7",
 		"reflect-metadata": "^0.1.13",
 		"rxjs": "^6.5.3"
 	},

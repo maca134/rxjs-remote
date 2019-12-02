@@ -1,5 +1,5 @@
 import { Observable, Subscription } from 'rxjs';
-import { RequestType, RxjsRemoteRequest, RxjsAttachConfig } from '@maca134/rxjs-remote-client';
+import { RequestType, RxjsRemoteRequest, RxjsAttachConfig, generateUuidV4 } from '@maca134/rxjs-remote-client';
 import { RocMiddleware } from './RocMiddleware';
 import { RocMethodEntry } from './RocMethodEntry';
 
@@ -53,7 +53,7 @@ export class RxjsRemote<T = any> {
 	}
 
 	attach(config: RxjsAttachConfig, obj?: T) {
-		const attachId = Math.random().toString(36).substring(2, 15);
+		const attachId = generateUuidV4();
 		config.onClose(() => this.onClose(attachId));
 		config.onMessage(message => this.onMessage(config, attachId, message, obj));
 	}
