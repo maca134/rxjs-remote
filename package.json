@@ -4,7 +4,7 @@
 	"description": "Observerables over the network",
 	"main": "./dist",
 	"scripts": {
-		"dev:debug": "nodemon --inspect ./src/index.ts",
+		"update": "npm update & git add ./* & git commit -m update & git push & npm version patch",
 		"postversion": "npm run build && npm publish",
 		"build": "rimraf ./dist && npm run generate-barrels && tsc",
 		"generate-barrels": "barrelsby --delete -d ./src"
@@ -12,7 +12,7 @@
 	"author": "maca134",
 	"license": "UNLICENSED",
 	"dependencies": {
-		"@maca134/rxjs-remote-client": "^1.0.2",
+		"@maca134/rxjs-remote-client": "^1.0.4",
 		"reflect-metadata": "^0.1.13",
 		"rxjs": "^6.5.3"
 	},
