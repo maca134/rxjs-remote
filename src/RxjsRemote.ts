@@ -54,11 +54,13 @@ export class RxjsRemote<T = any> {
 
 	attach(config: RxjsAttachConfig, obj?: T) {
 		const attachId = generateUuidV4();
+		this.logger(`attaching to new client '${attachId}`);
 		config.onClose(() => this.onClose(attachId));
 		config.onMessage(message => this.onMessage(config, attachId, message, obj));
 	}
 
 	private onClose(attachId: string) {
+		this.logger(`cleaning up client '${attachId}`);
 		if (!this._subscribers.has(attachId)) {
 			return;
 		}
