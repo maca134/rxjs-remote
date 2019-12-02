@@ -1,6 +1,6 @@
 {
 	"name": "@maca134/rxjs-remote",
-	"version": "1.0.3",
+	"version": "1.0.4",
 	"description": "Observerables over the network",
 	"main": "./dist",
 	"scripts": {
