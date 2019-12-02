@@ -1,21 +1,20 @@
 import { Observable, Subscription } from 'rxjs';
-import { RequestType, RxjsRemoteRequest, SocketLike } from '@maca134/rxjs-remote-client';
+import { RequestType, RxjsRemoteRequest, RxjsAttachConfig } from '@maca134/rxjs-remote-client';
 import { RocMiddleware } from './RocMiddleware';
 import { RocMethodEntry } from './RocMethodEntry';
-import { IsClassInstance } from './IsClassInstance';
 
 export class RxjsRemote<T = any> {
 	public logger = (message: string, level: 'debug' | 'info' | 'warn' | 'error' = 'info') =>
 		console[level === 'error' ? 'error' : 'log'](`${new Date().toISOString()} [${level}] ${message}`);
 
 	private readonly _registry = new Map<string, { method: (...args: any[]) => Observable<any>, inject: boolean, middleware: RocMiddleware<T>[] }>();
-	private readonly _subscribers = new Map<string, Subscription>();
+	private readonly _subscribers = new Map<string, Map<string, Subscription>>();
 
-	registerClass(instance: IsClassInstance) {
+	registerClass(instance: InstanceType<any>) {
 		return this.registerClasses([instance]);
 	}
 
-	registerClasses(instances: IsClassInstance[]) {
+	registerClasses(instances: InstanceType<any>[]) {
 		if (!Array.isArray(instances)) {
 			instances = [instances];
 		}
@@ -53,15 +52,32 @@ export class RxjsRemote<T = any> {
 		}
 	}
 
-	attach(socket: SocketLike, obj?: T) {
-		socket.on(message => this.processMessage(socket, message, obj));
+	attach(config: RxjsAttachConfig, obj?: T) {
+		const attachId = Math.random().toString(36).substring(2, 15);
+		config.onClose(() => this.onClose(attachId));
+		config.onMessage(message => this.onMessage(config, attachId, message, obj));
 	}
 
-	private async processMessage(socket: SocketLike, message: RxjsRemoteRequest, obj?: T) {
+	private onClose(attachId: string) {
+		if (!this._subscribers.has(attachId)) {
+			return;
+		}
+		for (const [_, subscriber] of this._subscribers.get(attachId)) {
+			subscriber.unsubscribe();
+		}
+		this._subscribers.delete(attachId);
+	}
+
+	private async onMessage(config: RxjsAttachConfig, attachId: string, message: RxjsRemoteRequest, obj?: T) {
+		if (!this._subscribers.has(attachId)) {
+			this._subscribers.set(attachId, new Map);
+		}
+		const subscribers = this._subscribers.get(attachId);
+
 		switch (message.type) {
 			case RequestType.start:
 				if (!this._registry.has(message.name)) {
-					socket.send({ type: 'error', id: message.id, error: 'no matching id' });
+					config.send({ type: 'error', id: message.id, error: 'no matching id' });
 					return;
 				}
 				const methodEntry = this._registry.get(message.name);
@@ -69,28 +85,38 @@ export class RxjsRemote<T = any> {
 				for (const middleware of methodEntry.middleware) {
 					await Promise.resolve(middleware(obj));
 				}
-				const args = methodEntry.inject ? [socket, ...message.args] : message.args;
+				const args = methodEntry.inject ? [obj, ...message.args] : message.args;
 
 				let observable: Observable<any>;
 				try {
 					observable = methodEntry.method(...args);
 				} catch (error) {
-					socket.send({ type: 'error', id: message.id, error: error.message || error });
+					config.send({ type: 'error', id: message.id, error: error.message || error });
 					return;
 				}
-				this._subscribers.set(message.id, observable.subscribe({
-					next: value => socket.send({ type: 'next', id: message.id, value }),
-					error: error => socket.send({ type: 'error', id: message.id, error }),
-					complete: () => socket.send({ type: 'complete', id: message.id })
+				subscribers.set(message.id, observable.subscribe({
+					next: value => config.send({ type: 'next', id: message.id, value }),
+					error: error => {
+						subscribers.delete(message.id);
+						config.send({ type: 'error', id: message.id, error });
+					},
+					complete: () => {
+						subscribers.delete(message.id);
+						config.send({ type: 'complete', id: message.id });
+					},
 				}));
 				break;
 			case RequestType.complete:
-				if (!this._subscribers.has(message.id)) {
-					socket.send({ type: 'error', id: message.id, error: 'bad call' });
+				if (!subscribers.has(message.id)) {
+					config.send({ type: 'error', id: message.id, error: 'the observable id does not exist' });
 					return;
 				}
-				this._subscribers.get(message.id).unsubscribe();
+				subscribers.get(message.id).unsubscribe();
+				subscribers.delete(message.id);
 				break;
 		}
 	}
 }
+
+
+
