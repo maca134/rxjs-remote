@@ -1,5 +1,12 @@
 # RxJs Remote
 
+[![npm version](https://badge.fury.io/js/%40maca134%2Frxjs-remote.svg)](https://badge.fury.io/js/%40maca134%2Frxjs-remote)
+[![dependencies Status](https://david-dm.org/maca134/rxjs-remote/status.svg)](https://david-dm.org/maca134/rxjs-remote)
+[![devDependencies Status](https://david-dm.org/maca134/rxjs-remote/dev-status.svg)](https://david-dm.org/maca134/rxjs-remote?type=dev)
+[![downloads](https://img.shields.io/npm/dm/@maca134/rxjs-remote)](https://www.npmjs.com/package/@maca134/rxjs-remote)
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.me/maca134)
+
+
 This is basically RxJs observable over some kind of network connection. It should work over pretty much any long living connection, i've had it working with socket.io and UDP. Observables get cleanup when things go wrong or something disconnects.
 
 Client files are here https://github.com/maca134/rxjs-remote-client
